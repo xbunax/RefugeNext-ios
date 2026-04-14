@@ -30,7 +30,7 @@ echo "==> Patching device_info_plus iOS selector compatibility..."
 FOUND_PLUGIN=0
 while IFS= read -r PLUGIN_FILE; do
   FOUND_PLUGIN=1
-  perl -0777 -i -pe 's/NSNumber\s*\*isiOSAppOnVision\s*=\s*\[NSNumber\s+numberWithBool:[^;]*\];/NSNumber *isiOSAppOnVision = [NSNumber numberWithBool:NO];/g' "$PLUGIN_FILE"
+  perl -0777 -i -pe 's/isiOSAppOnVision/isMacCatalystApp/g' "$PLUGIN_FILE"
   echo "Patched: $PLUGIN_FILE"
 done < <(find "$HOME/.pub-cache/hosted/pub.dev" "$ROOT_DIR/ios/.symlinks/plugins" -type f -name "FPPDeviceInfoPlusPlugin.m" 2>/dev/null)
 
@@ -38,7 +38,7 @@ if [ "$FOUND_PLUGIN" -eq 0 ]; then
   echo "Warning: FPPDeviceInfoPlusPlugin.m not found in pub cache or iOS symlinks."
 fi
 
-if grep -RE "NSNumber\s*\*isiOSAppOnVision\s*=\s*\[NSNumber\s+numberWithBool:\s*\[\[NSProcessInfo[[:space:]]+processInfo\][[:space:]]+isiOSAppOnVision\]\s*\]" "$HOME/.pub-cache/hosted/pub.dev" "$ROOT_DIR/ios/.symlinks/plugins" 2>/dev/null; then
+if grep -RE "processInfo[^[:alnum:]_]*\][[:space:]]*isiOSAppOnVision" "$HOME/.pub-cache/hosted/pub.dev" "$ROOT_DIR/ios/.symlinks/plugins" 2>/dev/null; then
   echo "Error: device_info_plus selector patch verification failed."
   exit 1
 fi
