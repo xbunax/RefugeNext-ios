@@ -49,18 +49,14 @@ jobs:
           FOUND=0
           while IFS= read -r PLUGIN_FILE; do
             FOUND=1
-            if grep -q "processInfo\] isiOSAppOnVision" "${PLUGIN_FILE}"; then
-              sed -i '' 's/\[\[NSProcessInfo processInfo\] isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
-              echo "Patched selector call in ${PLUGIN_FILE}"
-            else
-              echo "No selector call found in ${PLUGIN_FILE}"
-            fi
+            perl -0777 -i -pe 's/\[\[NSProcessInfo\s+processInfo\]\s+isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
+            echo "Patched selector call (multiline-safe) in ${PLUGIN_FILE}"
           done < <(find "$HOME/.pub-cache/hosted/pub.dev" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" "$GITHUB_WORKSPACE/ios/Pods" -type f -name "FPPDeviceInfoPlusPlugin.m" 2>/dev/null)
           if [ "${FOUND}" -eq 0 ]; then
             echo "FPPDeviceInfoPlusPlugin.m not found in cache/symlinks/pods, skip patch."
             exit 0
           fi
-          if grep -R "processInfo\] isiOSAppOnVision" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" "$GITHUB_WORKSPACE/ios/Pods" "$HOME/.pub-cache/hosted/pub.dev" 2>/dev/null; then
+          if grep -RE "\[\[NSProcessInfo[[:space:]]+processInfo\][[:space:]]+isiOSAppOnVision\]" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" "$GITHUB_WORKSPACE/ios/Pods" "$HOME/.pub-cache/hosted/pub.dev" 2>/dev/null; then
             echo "Patch verification failed: selector call still exists in build inputs."
             exit 1
           fi
