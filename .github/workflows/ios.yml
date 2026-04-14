@@ -39,8 +39,9 @@ jobs:
 
       - name: Build IPA (unsigned)
         run: |
-          flutter build ipa --no-codesign
-          mv build/ios/ipa/*.ipa build/ios/ipa/refuge-ios.ipa
+          chmod +x ./scripts/build_unsigned_ipa.sh
+          ./scripts/build_unsigned_ipa.sh release
+          cp build/ios/ipa/Runner-release-unsigned.ipa build/ios/ipa/refuge-ios.ipa
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
