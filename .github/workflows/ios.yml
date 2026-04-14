@@ -57,8 +57,8 @@ jobs:
             echo "device_info_plus plugin file not found, skip patch."
             exit 0
           fi
-          if grep -R "isiOSAppOnVision" "$HOME/.pub-cache/hosted/pub.dev/device_info_plus-"*"/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m"; then
-            echo "Patch verification failed: isiOSAppOnVision still exists."
+          if grep -R "processInfo\] isiOSAppOnVision" "$HOME/.pub-cache/hosted/pub.dev/device_info_plus-"*"/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m"; then
+            echo "Patch verification failed: selector call still exists."
             exit 1
           fi
 
