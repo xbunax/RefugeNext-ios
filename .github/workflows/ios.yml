@@ -39,6 +39,9 @@ jobs:
 
       - name: Install dependencies (pin iOS-compatible device_info_plus)
         run: |
+          sed -i '' 's/win32_registry: \^3\.0\.2/win32_registry: ^2.1.0/' pubspec.yaml
+          sed -i '' 's/win32: \^6\.0\.0/win32: ^5.5.0/' pubspec.yaml
+          grep -En "win32_registry|win32|device_info_plus" pubspec.yaml
           flutter pub get
           flutter pub add device_info_plus:^12.1.0
           flutter pub get
