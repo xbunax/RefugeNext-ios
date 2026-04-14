@@ -1,0 +1,48 @@
+name: iOS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '关联的 Release tag（如 v4.4.3），留空则仅上传 artifact'
+        required: false
+        default: ''
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: cd ios && pod install
+
+      - name: Build IPA (unsigned)
+        run: |
+          flutter build ipa --no-codesign
+          mv build/ios/ipa/*.ipa build/ios/ipa/refuge-ios.ipa
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: refuge-ios.ipa
+          path: build/ios/ipa/refuge-ios.ipa
+
+      - name: Attach to GitHub Release
+        if: ${{ github.event.inputs.tag != '' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          files: build/ios/ipa/refuge-ios.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
