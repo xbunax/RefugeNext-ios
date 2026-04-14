@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
@@ -19,6 +19,11 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16'
+
+      - name: Verify Xcode version
+        run: |
+          xcodebuild -version
+          xcrun --show-sdk-path
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
