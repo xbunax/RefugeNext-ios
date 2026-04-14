@@ -27,7 +27,7 @@ TMP_DIR="$ROOT_DIR/build/ios/ipa_tmp_${MODE}"
 cd "$ROOT_DIR"
 
 echo "==> Building iOS archive (${MODE}, no codesign)..."
-flutter build ipa "--${MODE}" --no-codesign
+flutter build ipa "--${MODE}" --no-codesign --no-pub
 
 if [ ! -d "$APP_DIR" ]; then
   echo "Error: archive app directory not found: $APP_DIR"
