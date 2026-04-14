@@ -39,7 +39,7 @@ jobs:
 
       - name: Verify resolved key deps
         run: |
-          rg -n "device_info_plus|win32_registry|win32" pubspec.lock
+          grep -En "device_info_plus|win32_registry|win32" pubspec.lock
       - name: Build IPA (unsigned)
         run: |
           chmod +x ./scripts/build_unsigned_ipa.sh
