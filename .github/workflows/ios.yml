@@ -43,16 +43,23 @@ jobs:
       - name: Patch device_info_plus for older Xcode SDK compatibility
         run: |
           set -euo pipefail
-          PLUGIN_FILE="$(find "$HOME/.pub-cache/hosted/pub.dev" -type f -path "*/device_info_plus-*/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m" | head -n 1)"
-          if [ -z "${PLUGIN_FILE}" ]; then
+          FOUND=0
+          while IFS= read -r PLUGIN_FILE; do
+            FOUND=1
+            if grep -q "isiOSAppOnVision" "${PLUGIN_FILE}"; then
+              sed -i '' 's/\[\[NSProcessInfo processInfo\] isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
+              echo "Patched isiOSAppOnVision call in ${PLUGIN_FILE}"
+            else
+              echo "No isiOSAppOnVision usage found in ${PLUGIN_FILE}"
+            fi
+          done < <(find "$HOME/.pub-cache/hosted/pub.dev" -type f -path "*/device_info_plus-*/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m")
+          if [ "${FOUND}" -eq 0 ]; then
             echo "device_info_plus plugin file not found, skip patch."
             exit 0
           fi
-          if grep -q "isiOSAppOnVision" "${PLUGIN_FILE}"; then
-            sed -i '' 's/\[\[NSProcessInfo processInfo\] isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
-            echo "Patched isiOSAppOnVision call in ${PLUGIN_FILE}"
-          else
-            echo "No isiOSAppOnVision usage found, skip patch."
+          if grep -R "isiOSAppOnVision" "$HOME/.pub-cache/hosted/pub.dev/device_info_plus-"*"/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m"; then
+            echo "Patch verification failed: isiOSAppOnVision still exists."
+            exit 1
           fi
 
       - name: Install CocoaPods dependencies
