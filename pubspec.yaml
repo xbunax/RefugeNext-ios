@@ -110,6 +110,8 @@ dev_dependencies:
 dependency_overrides:
   babstrap_settings_screen:
     path: packages/babstrap_settings_screen
+  win32_registry: ^3.0.2
+  win32: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
