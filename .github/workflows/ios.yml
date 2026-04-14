@@ -46,6 +46,24 @@ jobs:
       - name: Install CocoaPods dependencies
         run: cd ios && pod install
 
+      - name: Patch device_info_plus iOS selector for Xcode compatibility
+        run: |
+          set -euo pipefail
+          FOUND=0
+          while IFS= read -r PLUGIN_FILE; do
+            FOUND=1
+            perl -0777 -i -pe 's/\[\[NSProcessInfo\s+processInfo\]\s+isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
+            echo "Patched: ${PLUGIN_FILE}"
+          done < <(find "$HOME/.pub-cache/hosted/pub.dev" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" -type f -name "FPPDeviceInfoPlusPlugin.m" 2>/dev/null)
+          if [ "${FOUND}" -eq 0 ]; then
+            echo "FPPDeviceInfoPlusPlugin.m not found."
+            exit 1
+          fi
+          if grep -RE "\[\[NSProcessInfo[[:space:]]+processInfo\][[:space:]]+isiOSAppOnVision\]" "$HOME/.pub-cache/hosted/pub.dev" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" 2>/dev/null; then
+            echo "Patch verification failed: selector call still exists."
+            exit 1
+          fi
+
       - name: Verify resolved key deps
         run: |
           grep -En "device_info_plus|win32_registry|win32" pubspec.lock
