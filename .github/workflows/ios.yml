@@ -40,30 +40,30 @@ jobs:
       - name: Install dependencies (lockfile enforced)
         run: flutter pub get --enforce-lockfile
 
-      - name: Patch device_info_plus for older Xcode SDK compatibility
+      - name: Install CocoaPods dependencies
+        run: cd ios && pod install
+
+      - name: Patch device_info_plus selector in all build inputs
         run: |
           set -euo pipefail
           FOUND=0
           while IFS= read -r PLUGIN_FILE; do
             FOUND=1
-            if grep -q "isiOSAppOnVision" "${PLUGIN_FILE}"; then
+            if grep -q "processInfo\] isiOSAppOnVision" "${PLUGIN_FILE}"; then
               sed -i '' 's/\[\[NSProcessInfo processInfo\] isiOSAppOnVision\]/NO/g' "${PLUGIN_FILE}"
-              echo "Patched isiOSAppOnVision call in ${PLUGIN_FILE}"
+              echo "Patched selector call in ${PLUGIN_FILE}"
             else
-              echo "No isiOSAppOnVision usage found in ${PLUGIN_FILE}"
+              echo "No selector call found in ${PLUGIN_FILE}"
             fi
-          done < <(find "$HOME/.pub-cache/hosted/pub.dev" -type f -path "*/device_info_plus-*/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m")
+          done < <(find "$HOME/.pub-cache/hosted/pub.dev" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" "$GITHUB_WORKSPACE/ios/Pods" -type f -name "FPPDeviceInfoPlusPlugin.m" 2>/dev/null)
           if [ "${FOUND}" -eq 0 ]; then
-            echo "device_info_plus plugin file not found, skip patch."
+            echo "FPPDeviceInfoPlusPlugin.m not found in cache/symlinks/pods, skip patch."
             exit 0
           fi
-          if grep -R "processInfo\] isiOSAppOnVision" "$HOME/.pub-cache/hosted/pub.dev/device_info_plus-"*"/ios/device_info_plus/Sources/device_info_plus/FPPDeviceInfoPlusPlugin.m"; then
-            echo "Patch verification failed: selector call still exists."
+          if grep -R "processInfo\] isiOSAppOnVision" "$GITHUB_WORKSPACE/ios/.symlinks/plugins" "$GITHUB_WORKSPACE/ios/Pods" "$HOME/.pub-cache/hosted/pub.dev" 2>/dev/null; then
+            echo "Patch verification failed: selector call still exists in build inputs."
             exit 1
           fi
-
-      - name: Install CocoaPods dependencies
-        run: cd ios && pod install
 
       - name: Verify resolved key deps
         run: |
