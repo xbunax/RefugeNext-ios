@@ -75,13 +75,6 @@ class _ProductUpgradeWidgetState extends State<ProductUpgradeWidget> with Automa
   }
 
   Future<void> _calculateUpgradePath() async {
-
-    final isVip = Provider.of<MainDataModel>(context, listen: false).isVIP;
-    if (!isVip) {
-      showVipAlert(context: context, move: true);
-      return;
-    }
-
     try {
       await __calculateUpgradePath();
     } catch (e) {
@@ -1079,4 +1072,3 @@ class _ProductUpgradeWidgetState extends State<ProductUpgradeWidget> with Automa
   @override
   bool get wantKeepAlive => true;
 }
-

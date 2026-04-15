@@ -100,12 +100,7 @@ Future<void> updateShipInfo(RefugeVersionProperty latestVersion) async {
 }
 
 Future<void> setVip() async {
-  final cirnoAuth = await CirnoAuth.getInstance();
-  if (cirnoAuth.isInitialized) {
-    if (!cirnoAuth.property!.isVip) {
-      await ThemeManager.setTheme(false, 'blue');
-    }
-  }
+  return;
 }
 
 

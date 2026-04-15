@@ -446,15 +446,6 @@ class MainDataModel extends ChangeNotifier {
   Future<void> setEnableRealtimeLogSync(bool enabled) async {
     print('[RealtimeLogSync] 用户设置实时同步: $enabled');
 
-    // VIP检查：非VIP用户静默关闭功能
-    if (enabled && !isVIP) {
-      _enableRealtimeLogSync = false;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('app.settings.enableRealtimeLogSync', false);
-      notifyListeners();
-      return;
-    }
-
     _enableRealtimeLogSync = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('app.settings.enableRealtimeLogSync', enabled);
@@ -474,14 +465,6 @@ class MainDataModel extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _enableRealtimeLogSync = prefs.getBool('app.settings.enableRealtimeLogSync') ?? false;
     print('[RealtimeLogSync] 加载实时同步设置: $_enableRealtimeLogSync');
-
-    // VIP检查：非VIP用户静默关闭功能
-    if (_enableRealtimeLogSync && !isVIP) {
-      _enableRealtimeLogSync = false;
-      await prefs.setBool('app.settings.enableRealtimeLogSync', false);
-      notifyListeners();
-      return;
-    }
 
     // 如果实时同步已启用且游戏目录已设置，自动启动监控
     // 注意：需要在 loadGameDirectory() 之后调用此方法
@@ -603,10 +586,7 @@ class MainDataModel extends ChangeNotifier {
   RefugeVersionProperty? get property => CirnoAuth.instance?.property;
 
   bool get isVIP {
-    if (property == null) {
-      return true;
-    }
-    return property!.isVip;
+    return true;
   }
 
   /// 刷新VIP订阅状态
@@ -614,11 +594,6 @@ class MainDataModel extends ChangeNotifier {
     final cirnoAuth = await CirnoAuth.getInstance();
     await cirnoAuth.refreshProperty();
     notifyListeners();
-
-    // 刷新VIP状态后检查实时同步，非VIP静默关闭
-    if (!isVIP && _enableRealtimeLogSync) {
-      await setEnableRealtimeLogSync(false);
-    }
   }
 
 

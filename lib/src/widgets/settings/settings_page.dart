@@ -347,12 +347,6 @@ class _SettingsPageState extends State<SettingsPage> {
                               modalSheetContext,
                               Theme.of(context).colorScheme.primary,
                               (scheme) {
-
-                                if (!Provider.of<MainDataModel>(context, listen: false).isVIP) {
-                                  showVipAlert(context: context);
-                                  return;
-                                }
-
                                 Provider.of<MainDataModel>(context, listen: false)
                                     .setTheme(null, scheme);
                               },
@@ -393,14 +387,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       backgroundColor: Colors.red,
                     ),
                     title: '夜间模式',
-                    subtitle: Provider.of<MainDataModel>(context).isVIP ? "自动切换" : "缺少有效的避难所Premium",
+                    subtitle: "自动切换",
                     trailing: Switch.adaptive(
                       value: Provider.of<MainDataModel>(context).isDarkMode,
                       onChanged: (value) {
-                        if (!Provider.of<MainDataModel>(context, listen: false).isVIP) {
-                          showVipAlert(context: context);
-                          return;
-                        }
                         Provider.of<MainDataModel>(context, listen: false)
                             .toggleDarkMode();
                       },
@@ -551,10 +541,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         trailing: Switch.adaptive(
                           value: Provider.of<MainDataModel>(context).enableRealtimeLogSync,
                           onChanged: (value) {
-                            if (!Provider.of<MainDataModel>(context, listen: false).isVIP) {
-                              showVipAlert(context: context);
-                              return;
-                            }
                             Provider.of<MainDataModel>(context, listen: false)
                                 .setEnableRealtimeLogSync(value);
                           },
@@ -676,10 +662,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       _tapCount++;
 
                       if (_tapCount >= 7) {
-                        if (!Provider.of<MainDataModel>(context, listen: false).isVIP) {
-                          // showVipAlert(context: context);
-                          return;
-                        }
                         final isDevMode = Provider.of<MainDataModel>(context, listen: false).isDevMode;
                         Provider.of<MainDataModel>(context, listen: false)
                             .setDevMode(!isDevMode);
